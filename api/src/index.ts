@@ -1,11 +1,15 @@
 import "reflect-metadata";
+import { Server } from "socket.io";
 import express from "express";
+import { createServer } from "http";
 import * as yup from "yup";
 import { createConnection } from "typeorm";
 import { Poll } from "./entity/Poll";
 
 async function main() {
   const app = express();
+  const server = createServer(app);
+  const io = new Server(server, {});
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   const conn = await createConnection();
@@ -38,7 +42,14 @@ async function main() {
     }
   });
 
-  app.listen(process.env.PORT || 4000, () =>
+  io.on("connection", (socket) => {
+    socket.broadcast.emit("Hello");
+    socket.on("vote", (data) => {
+      console.log(data);
+    });
+  });
+
+  server.listen(process.env.PORT || 4000, () =>
     console.log("🚀 Server listening")
   );
 }

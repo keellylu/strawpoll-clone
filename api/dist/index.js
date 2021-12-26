@@ -23,12 +23,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
+const socket_io_1 = require("socket.io");
 const express_1 = __importDefault(require("express"));
+const http_1 = require("http");
 const yup = __importStar(require("yup"));
 const typeorm_1 = require("typeorm");
 const Poll_1 = require("./entity/Poll");
 async function main() {
     const app = (0, express_1.default)();
+    const server = (0, http_1.createServer)(app);
+    const io = new socket_io_1.Server(server, {});
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: true }));
     const conn = await (0, typeorm_1.createConnection)();
@@ -60,7 +64,13 @@ async function main() {
             res.status(500).send(error);
         }
     });
-    app.listen(process.env.PORT || 4000, () => console.log("🚀 Server listening"));
+    io.on("connection", (socket) => {
+        socket.broadcast.emit("Hello");
+        socket.on("vote", (data) => {
+            console.log(data);
+        });
+    });
+    server.listen(process.env.PORT || 4000, () => console.log("🚀 Server listening"));
 }
 main().catch(console.error);
 //# sourceMappingURL=index.js.map
