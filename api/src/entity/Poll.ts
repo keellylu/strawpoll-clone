@@ -22,6 +22,9 @@ export class Poll extends BaseEntity {
   @OneToMany(() => Choice, (choice) => choice.poll)
   choices: Choice[];
 
+  @Column()
+  deadline: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 }

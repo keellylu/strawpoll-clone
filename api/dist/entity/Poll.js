@@ -31,6 +31,10 @@ __decorate([
     __metadata("design:type", Array)
 ], Poll.prototype, "choices", void 0);
 __decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Date)
+], Poll.prototype, "deadline", void 0);
+__decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Poll.prototype, "createdAt", void 0);
