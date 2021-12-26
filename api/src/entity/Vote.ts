@@ -1,21 +1,30 @@
-import { BaseEntity, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Choice } from "./Choice";
 import { Poll } from "./Poll";
 
 @Entity("votes")
 export class Vote extends BaseEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   pollId: string;
 
   @ManyToOne(() => Poll)
   poll: Poll;
 
-  @PrimaryColumn()
+  @Column()
   choiceId: string;
 
   @ManyToOne(() => Choice)
   choice: Choice;
 
-  @PrimaryColumn()
-  ipAddress: string;
+  @Column("text", { nullable: true })
+  ipAddress?: string;
 }

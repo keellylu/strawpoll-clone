@@ -25,12 +25,12 @@ const PollPage: NextPage<
   const { data } = useSWR(`/polls/${id}`, (url) =>
     axios.get(API_URL + url).then((res) => res.data)
   );
-  const [value, setValue] = useState(data?.choices[0].value);
+  const [selection, setSelection] = useState(data?.choices[0].value);
 
   return (
     <Box maxW="xl" mx="auto" py={24}>
       <Heading as="h1">{data?.title}</Heading>
-      <Text mt={4}>
+      <Text color="gray.500" mt={4}>
         Created{" "}
         {data
           ? formatDistanceToNow(new Date(data?.createdAt), { addSuffix: true })
@@ -38,16 +38,30 @@ const PollPage: NextPage<
         · {data?.description}
       </Text>
       <Divider mt={8} />
-      <RadioGroup colorScheme="teal" onChange={setValue} value={value} my={8}>
+      <RadioGroup
+        colorScheme="teal"
+        onChange={setSelection}
+        value={selection}
+        my={8}
+      >
         <Stack direction="column">
           {data?.choices.map(({ value, id }: any) => (
-            <Radio value={value} key={id}>
+            <Radio value={id} key={id}>
               {value}
             </Radio>
           ))}
         </Stack>
       </RadioGroup>
-      <Button colorScheme="teal">Cast Vote</Button>
+      <Button
+        onClick={async () => {
+          console.log({ selection, id });
+
+          await axios.post(`${API_URL}/vote/${id}`, { choiceId: selection });
+        }}
+        colorScheme="teal"
+      >
+        Cast Vote
+      </Button>
     </Box>
   );
 };

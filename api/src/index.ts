@@ -1,15 +1,15 @@
-import "reflect-metadata";
-import { Server } from "socket.io";
+import cors from "cors";
 import express from "express";
 import { createServer } from "http";
-import * as yup from "yup";
-import { createConnection, getRepository } from "typeorm";
-import { Poll } from "./entity/Poll";
-import cors from "cors";
-import { __prod__ } from "./constants";
 import { join } from "path";
-import { Vote } from "./entity/Vote";
+import "reflect-metadata";
+import { Server } from "socket.io";
+import { createConnection } from "typeorm";
+import * as yup from "yup";
+import { __prod__ } from "./constants";
 import { Choice } from "./entity/Choice";
+import { Poll } from "./entity/Poll";
+import { Vote } from "./entity/Vote";
 
 async function main() {
   const app = express();
@@ -45,6 +45,45 @@ async function main() {
       });
     }
     res.status(200).json({ ...poll, voteStatus });
+  });
+
+  app.post("/vote/:id", async (req, res) => {
+    const { id } = req.params;
+    const { choiceId } = req.body;
+
+    // NOTE: on localhost, IP addresses are not available (it returns "::1")
+    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const poll = await Poll.findOne(id);
+
+    const choice = await Choice.findOne(choiceId);
+
+    if (choice.pollId !== id) {
+      return res.status(400).json({
+        error: "Choice does not belong to this poll",
+      });
+    }
+
+    if (poll?.useIpAddress) {
+      const vote = await Vote.findOne({ where: { pollId: id, ipAddress: ip } });
+      if (vote) {
+        return res.status(400).json({
+          error: "You have already voted in this poll",
+        });
+      }
+    }
+
+    const vote = new Vote();
+    vote.pollId = id;
+    vote.choiceId = choiceId;
+    if (poll?.useIpAddress) {
+      vote.ipAddress = ip?.toString();
+    }
+    await vote.save();
+
+    choice.votes++;
+    await choice.save();
+
+    return res.status(201).json(vote);
   });
 
   app.post("/polls", async (req, res) => {
