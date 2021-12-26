@@ -25,6 +25,12 @@ export class Poll extends BaseEntity {
   @Column({ nullable: true })
   deadline?: Date;
 
+  @Column()
+  useIpAddress: boolean;
+
+  @Column()
+  allowSelectMultiple: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 }
