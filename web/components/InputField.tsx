@@ -10,7 +10,7 @@ import {
 
 type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   name: string;
-  label: string;
+  label?: string;
   textarea?: boolean;
   required?: boolean;
 };
@@ -29,7 +29,7 @@ export const InputField: React.FC<InputFieldProps> = ({
   const [field, { error }] = useField(props);
   return (
     <FormControl isRequired={required} isInvalid={!!error}>
-      <FormLabel htmlFor={field.name}>{label}</FormLabel>
+      {label ? <FormLabel htmlFor={field.name}>{label}</FormLabel> : null}
       <InputOrTextarea {...field} {...props} id={field.name} />
       {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>

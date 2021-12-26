@@ -5,6 +5,9 @@ import { createServer } from "http";
 import * as yup from "yup";
 import { createConnection } from "typeorm";
 import { Poll } from "./entity/Poll";
+import cors from "cors";
+import { __prod__ } from "./constants";
+import { join } from "path";
 
 async function main() {
   const app = express();
@@ -12,7 +15,20 @@ async function main() {
   const io = new Server(server, {});
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  const conn = await createConnection();
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+    })
+  );
+  const conn = await createConnection({
+    type: "postgres",
+    database: __prod__ ? undefined : "strawpoll",
+    url: __prod__ ? process.env.DATABASE_URL : undefined,
+    entities: [join(__dirname, "./entity/*")],
+    migrations: [join(__dirname, "./migrations/*")],
+    synchronize: !__prod__,
+    logging: !__prod__,
+  });
   await conn.runMigrations();
 
   app.get("/", (req, res) => {

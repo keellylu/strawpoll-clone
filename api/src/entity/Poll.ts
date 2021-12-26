@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { Choice } from "./Choice";
 
-@Entity()
+@Entity("polls")
 export class Poll extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -22,8 +22,8 @@ export class Poll extends BaseEntity {
   @OneToMany(() => Choice, (choice) => choice.poll)
   choices: Choice[];
 
-  @Column()
-  deadline: Date;
+  @Column({ nullable: true })
+  deadline?: Date;
 
   @CreateDateColumn()
   createdAt: Date;

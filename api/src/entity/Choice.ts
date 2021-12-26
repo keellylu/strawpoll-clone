@@ -7,7 +7,7 @@ import {
 } from "typeorm";
 import { Poll } from "./Poll";
 
-@Entity()
+@Entity("choices")
 export class Choice extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
